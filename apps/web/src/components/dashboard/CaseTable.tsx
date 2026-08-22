@@ -1,13 +1,4 @@
-type Case = {
-    id: string;
-    customer_name: string;
-    customer_email: string;
-    amount: string;
-    currency: string;
-    issue_type: string;
-    status: string;
-    risk_score: number;
-}
+import { Case } from "@/types"
 
 type CaseTableProps = {
     cases: Case[];
