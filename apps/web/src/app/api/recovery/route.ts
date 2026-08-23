@@ -1,4 +1,8 @@
 import db from "@/lib/db";
+import { determineIntervention } from "@/services/intervention-engine";
+import { createRecoveryPlan } from "@/services/recovery-engine";
+import { calculateRisk } from "@/services/risk-engine";
+import { Case } from "@/types";
 
 export async function POST(request: Request) {
     try {
@@ -23,15 +27,7 @@ export async function POST(request: Request) {
             FROM cases WHERE id=?
         `, [caseId])
 
-        const cases = rows as Array<{
-            id: string;
-            customer_name: string;
-            amount: string;
-            currency: string;
-            issue_type: string;
-            status: string;
-            risk_score: number;
-        }>;
+        const cases = rows as Case[];
 
         if(cases.length === 0) {
             return Response.json(
@@ -42,10 +38,20 @@ export async function POST(request: Request) {
 
         const recoveryCase = cases[0]
 
+        const calculatedRisk = calculateRisk(recoveryCase);
+        const caseWithCalculatedRisk: Case = {
+            ...recoveryCase,
+            risk_score: calculatedRisk
+        }
+        const intervention = determineIntervention(caseWithCalculatedRisk);
+        const recoveryPlan = createRecoveryPlan(caseWithCalculatedRisk);
+
         return Response.json({
-            status: "ready",
-            case: recoveryCase,
-            message: "Case is ready for recovery analysis."
+            status: recoveryPlan.status,
+            case: caseWithCalculatedRisk,
+            risk: calculatedRisk,
+            intervention,
+            recover: recoveryPlan
         });
     } catch (error) {
         console.error("Recovery request failed: ", error);
