@@ -1,10 +1,12 @@
-import { Case } from "@/types"
+import { Case } from "@/types";
+import { useRouter } from "next/navigation";
 
 type CaseTableProps = {
     cases: Case[];
 }
 
 export default function CaseTable({ cases }: CaseTableProps) {
+    const router = useRouter();
     return (
         <section>
             <div className="mb-4 flex items-center justify-between">
@@ -48,7 +50,8 @@ export default function CaseTable({ cases }: CaseTableProps) {
                             {cases.map((item) => (
                                 <tr
                                     key={item.id}
-                                    className="border-b border-gray-900 last:border-b-0"
+                                    onClick={() => router.push(`/cases/${item.id}`)}
+                                    className="cursor-pointer border-b border-gray-900 last:border-b-0 hover:bg-gray-950"
                                 >
                                     <td className="px-5 py-4">
                                         <div className="font-medium">
