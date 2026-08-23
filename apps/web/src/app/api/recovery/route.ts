@@ -1,8 +1,9 @@
 import db from "@/lib/db";
 import { determineIntervention } from "@/services/intervention-engine";
 import { createRecoveryPlan } from "@/services/recovery-engine";
-import { calculateRisk } from "@/services/risk-engine";
+import { analyzeCase } from "@/lib/ai/client";
 import { Case } from "@/types";
+import { calculateRisk } from "@/services/risk-engine";
 
 export async function POST(request: Request) {
     try {
@@ -45,13 +46,15 @@ export async function POST(request: Request) {
         }
         const intervention = determineIntervention(caseWithCalculatedRisk);
         const recoveryPlan = createRecoveryPlan(caseWithCalculatedRisk);
+        const aiAnalysis = await analyzeCase(caseWithCalculatedRisk);
 
         return Response.json({
             status: recoveryPlan.status,
             case: caseWithCalculatedRisk,
             risk: calculatedRisk,
             intervention,
-            recover: recoveryPlan
+            recover: recoveryPlan,
+            ai: aiAnalysis
         });
     } catch (error) {
         console.error("Recovery request failed: ", error);

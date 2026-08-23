@@ -10,3 +10,10 @@ export type Case = {
   created_at: string;
   updated_at: string;
 }
+
+export type AIAnalysis = {
+  case_id: string;
+  risk_score: number;
+  recommendation: string;
+  reason: string;
+};
