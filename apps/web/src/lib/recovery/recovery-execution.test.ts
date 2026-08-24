@@ -1,6 +1,6 @@
 import { Case } from "@/types";
-import { RecoveryResult } from "./recovery-engine";
-import { executeRecovery } from "../lib/recovery/executeRecovery";
+import { RecoveryResult } from "../../services/recovery-engine";
+import { executeRecovery } from "./executeRecovery";
 
 const baseCase: Case = {
     id: "test-001",
