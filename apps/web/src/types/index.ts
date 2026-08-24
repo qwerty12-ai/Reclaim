@@ -14,6 +14,8 @@ export type Case = {
 export type AIAnalysis = {
   case_id: string;
   risk_score: number;
+  diagnosis: string;
   recommendation: string;
   reason: string;
+  confidence: number;
 };
