@@ -3,6 +3,14 @@ from app.analyzer import analyze_case
 
 app = FastAPI(title="Reclaim AI Service")
 
+@app.get("/")
+def home():
+    return {
+        "service": "Reclaim AI Service",
+        "message": "Revenue recovery intelligence is running",
+        "docs": "/docs"
+    }
+
 @app.get("/health")
 def health():
     return {
