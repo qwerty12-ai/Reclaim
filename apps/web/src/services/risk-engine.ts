@@ -11,7 +11,10 @@ export function calculateRisk(caseData: Case): number {
     if(caseData.issue_type === "subscription_failure") {
         score += 30
     }
-    if(Number(caseData.amount) >= 20000 || Number(caseData.amount) >= 50000) {
+    if(Number(caseData.amount) >= 20000) {
+        score += 20;
+    }
+    if(Number(caseData.amount) >= 50000) {
         score += 20;
     }
     return Math.min(score, 100);
