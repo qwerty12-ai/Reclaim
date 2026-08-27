@@ -75,3 +75,39 @@ export async function POST(request: Request) {
         }, {status: 500})
     }
 }
+
+export async function GET(request: Request) {
+    const {searchParams} = new URL(request.url);
+    const caseId = searchParams.get("caseId");
+    try {
+        let query = `
+            SELECT 
+                id,
+                case_id,
+                action,
+                status,
+                amount_recovered,
+                reason,
+                created_at
+            FROM recovery_executions
+        `;
+
+        const params: string[] = [];
+
+        if(caseId) {
+            query += ` WHERE case_id=?`
+            params.push(caseId);
+        }
+        query += ` ORDER BY created_at DESC`;
+
+        const [rows] = await db.query(query,params)
+        return Response.json({
+            executions: rows,
+        })
+    } catch (error) {
+        console.error("Failed to fetch recovery executions: ", error)
+        return Response.json({
+            error: "Failed to fetch recovery audit history"
+        }, {status: 500})
+    }
+}
