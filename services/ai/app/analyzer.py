@@ -1,7 +1,10 @@
 from typing import Any
 import os
-from ollama import chat
+from ollama import Client
 from pydantic import BaseModel
+
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+client = Client(host=OLLAMA_HOST)
 
 class RecoveryAnalysis(BaseModel):
     diagnosis: str
@@ -20,7 +23,7 @@ def analyze_case(case: dict[str, Any]) -> dict[str, Any]:
     """
     Analyze a revenue recovery case using a local LLM through Ollama.
     """
-    model = os.getenv("OLLAMA_MODEL", "qwen3:4b")
+    model = os.getenv("OLLAMA_MODEL", "qwen3:4")
 
     prompt = f"""
 You are the AI recovery analyst for a revenue recovery system.
@@ -55,7 +58,7 @@ Do not claim that money has been recovered.
 Return only the requested structured response.
 """
 
-    response = chat(model=model, messages = [{"role": "user","content": prompt}],
+    response = client.chat(model=model, messages = [{"role": "user","content": prompt}],
     think=False,
     format=RecoveryAnalysis.model_json_schema(),
     options={"temperature": 0,}

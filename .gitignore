@@ -3,3 +3,4 @@ services/ai/.venv/
 services/ai/**/__pycache__/
 services/ai/**/*.pyc
 services/ai/.env
+services/ai/.env.local

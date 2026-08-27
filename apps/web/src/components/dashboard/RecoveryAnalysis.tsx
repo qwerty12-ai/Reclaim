@@ -6,7 +6,7 @@ type RecoveryAnalysisProps = {
     caseId: string;
 }
 
-export default function RecoveryAnalysis({caseId}:RecoveryAnalysisProps) {
+export default function RecoveryAnalysis({ caseId }: RecoveryAnalysisProps) {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<any>(null);
     const [execution, setExecution] = useState<any>(null);
@@ -23,9 +23,9 @@ export default function RecoveryAnalysis({caseId}:RecoveryAnalysisProps) {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({caseId})
+                body: JSON.stringify({ caseId })
             })
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error("Failed to analyze recovery.");
             }
             const data = await response.json();
@@ -46,9 +46,9 @@ export default function RecoveryAnalysis({caseId}:RecoveryAnalysisProps) {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({caseId})
+                body: JSON.stringify({ caseId })
             })
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error("Failed to execute recovery.");
             }
             const data = await response.json();
@@ -60,7 +60,7 @@ export default function RecoveryAnalysis({caseId}:RecoveryAnalysisProps) {
         }
     }
 
-     return (
+    return (
         <section className="mt-10">
             <div className="mb-4">
                 <h2 className="text-2xl font-semibold">
@@ -120,16 +120,48 @@ export default function RecoveryAnalysis({caseId}:RecoveryAnalysisProps) {
 
                         <div className="rounded-xl border border-gray-800 p-6">
                             <p className="text-sm text-gray-500">
-                                AI Recommendation
+                                AI Analysis
                             </p>
 
-                            <p className="mt-2 font-medium">
-                                {result.ai.recommendation}
-                            </p>
+                            <div className="mt-4">
+                                <p className="text-sm text-gray-500">
+                                    Diagnosis
+                                </p>
 
-                            <p className="mt-2 text-sm text-gray-400">
-                                {result.ai.reason}
-                            </p>
+                                <p className="mt-1 font-medium">
+                                    {result.ai.diagnosis}
+                                </p>
+                            </div>
+
+                            <div className="mt-4">
+                                <p className="text-sm text-gray-500">
+                                    Recommendation
+                                </p>
+
+                                <p className="mt-1 font-medium">
+                                    {result.ai.recommendation}
+                                </p>
+                            </div>
+
+                            <div className="mt-4">
+                                <p className="text-sm text-gray-500">
+                                    Reason
+                                </p>
+
+                                <p className="mt-1 text-sm text-gray-400">
+                                    {result.ai.reason}
+                                </p>
+                            </div>
+
+                            <div className="mt-4">
+                                <p className="text-sm text-gray-500">
+                                    Confidence
+                                </p>
+
+                                <p className="mt-1 font-medium">
+                                    {(Number(result.ai.confidence) * 100).toFixed(0)}%
+                                </p>
+                            </div>
                         </div>
 
                     </div>
