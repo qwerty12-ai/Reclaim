@@ -45,7 +45,23 @@ export async function POST(request: Request) {
         }
         const recoveryPlan = createRecoveryPlan(caseWithCalculatedRisk);
         const execution = executeRecovery(caseWithCalculatedRisk, recoveryPlan)
-
+        const audit = execution.audit;
+        await db.query(`
+            INSERT INTO recovery_executions 
+                (id,
+                case_id,
+                action,
+                status,
+                amount_recovered,
+                reason)
+            VALUES (UUID(), ?, ?, ?, ?, ?)
+        `, [
+            audit.caseId,
+            audit.action,
+            audit.status,
+            audit.amountRecovered,
+            audit.reason
+        ])
         return Response.json({
             case: caseWithCalculatedRisk,
             risk: calculatedRisk,
