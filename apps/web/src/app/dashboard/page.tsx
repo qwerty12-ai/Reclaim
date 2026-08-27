@@ -3,8 +3,12 @@ import DashboardShell from "@/components/dashboard/DashboardShell";
 import {useEffect, useState} from "react";
 import { Case } from "@/types";
 
+type DashboardCase = Case & {
+  recovery_status?: string;
+};
+
 export default function DashboardPage() {
-  const [cases, setCases] = useState<Case[]>([]);
+  const [cases, setCases] = useState<DashboardCase[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -16,7 +20,31 @@ export default function DashboardPage() {
           throw new Error("Failed to fetch cases");
         }
         const data = await response.json();
-        setCases(data.cases);
+        const casesWithRecovery = await Promise.all(
+          data.cases.map(async (item: Case) => {
+            try {
+              const recoveryResponse = await fetch(`/api/recovery/execute?caseId=${item.id}`);
+              if (!recoveryResponse.ok) {
+                return {
+                  ...item,
+                  recovery_status: "not_started"
+                };
+              }
+              const recoveryData = await recoveryResponse.json();
+              const latestExecution = recoveryData.executions?.[0];
+              return {
+                ...item,
+                recovery_status: latestExecution?.status || "not_started"
+              }
+            } catch (error) {
+              return {
+                ...item,
+                recovery_status: "not_started"
+              }
+            }
+          })
+        )
+        setCases(casesWithRecovery);
       } catch (error) {
         setError("Unable to load revenue cases.")
       } finally {

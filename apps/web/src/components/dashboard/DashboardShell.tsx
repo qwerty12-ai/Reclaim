@@ -2,8 +2,12 @@ import SummaryCards from "./SummaryCards"
 import CaseTable from "./CaseTable";
 import { Case } from "@/types";
 
+type DashboardCase = Case & {
+    recovery_status?: string;
+}
+
 type DashboardShellProps = {
-    cases: Case[];
+    cases: DashboardCase[];
     totalAtRisk: number;
     highRiskCases: number;
     recoveryCases: number;

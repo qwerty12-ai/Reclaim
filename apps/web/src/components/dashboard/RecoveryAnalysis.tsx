@@ -97,10 +97,10 @@ export default function RecoveryAnalysis({ caseId }: RecoveryAnalysisProps) {
 
             <button
                 onClick={analyzeRecovery}
-                disabled={loading}
+                disabled={loading || result !== null}
                 className="rounded-lg bg-white px-5 py-3 font-medium text-black disabled:opacity-50"
             >
-                {loading ? "Analyzing..." : "Analyze Recovery"}
+                {loading ? "Analyzing..." : result ? "Analysis Complete":"Analyze Recovery"}
             </button>
 
             {error && (

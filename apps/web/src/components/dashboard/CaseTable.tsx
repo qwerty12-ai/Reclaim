@@ -1,8 +1,12 @@
 import { Case } from "@/types";
 import { useRouter } from "next/navigation";
 
+type DashboardCase = Case & {
+    recovery_status?: string;
+}
+
 type CaseTableProps = {
-    cases: Case[];
+    cases: DashboardCase[];
 }
 
 export default function CaseTable({ cases }: CaseTableProps) {
@@ -42,6 +46,10 @@ export default function CaseTable({ cases }: CaseTableProps) {
 
                                 <th className="px-5 py-4 text-sm text-gray-500">
                                     Status
+                                </th>
+
+                                <th className="px-5 py-4 text-sm text-gray-500">
+                                    Recovery
                                 </th>
                             </tr>
                         </thead>
@@ -86,6 +94,12 @@ export default function CaseTable({ cases }: CaseTableProps) {
                                     <td className="px-5 py-4">
                                         <span className="rounded-full border border-gray-700 px-3 py-1 text-xs">
                                             {item.status}
+                                        </span>
+                                    </td>
+
+                                    <td className="px-5 py-4">
+                                        <span className="rounded-full border border-gray-700 px-3 py-1 text-xs">
+                                            {item.recovery_status}
                                         </span>
                                     </td>
                                 </tr>
