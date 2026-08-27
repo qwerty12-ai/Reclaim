@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type RecoveryAnalysisProps = {
     caseId: string;
@@ -11,7 +11,29 @@ export default function RecoveryAnalysis({ caseId }: RecoveryAnalysisProps) {
     const [result, setResult] = useState<any>(null);
     const [execution, setExecution] = useState<any>(null);
     const [executing, setExecuting] = useState<any>(null);
+    const [auditHistory, setAuditHistory] = useState<any[]>([]);
+    const [auditLoading, setAuditLoading] = useState(false);
     const [error, setError] = useState("");
+
+    async function fetchAuditHistory() {
+        try {
+            setAuditLoading(true)
+            const response = await fetch(`/api/recovery/execute?caseId=${caseId}`)
+            if (!response.ok) {
+                throw new Error("Failed to fetch recovery audit history.")
+            }
+            const data = await response.json();
+            setAuditHistory(data.executions || [])
+        } catch (error) {
+            console.error("Failed to fetch recovery audit history: ", error);
+        } finally {
+            setAuditLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        fetchAuditHistory();
+    }, [caseId])
 
     async function analyzeRecovery() {
         try {
@@ -53,6 +75,7 @@ export default function RecoveryAnalysis({ caseId }: RecoveryAnalysisProps) {
             }
             const data = await response.json();
             setExecution(data.execution);
+            await fetchAuditHistory();
         } catch (error) {
             setError("Unable to execute recovery.")
         } finally {
@@ -246,6 +269,92 @@ export default function RecoveryAnalysis({ caseId }: RecoveryAnalysisProps) {
                                     {execution.reason}
                                 </p>
                             </div>
+                        </div>
+                    )}
+
+                    {auditHistory.length > 0 && (
+                        <div className="mt-6 rounded-xl border border-gray-800 p-6">
+                            <div className="mb-4">
+                                <p className="text-sm text-gray-500">
+                                    Recovery Audit
+                                </p>
+
+                                <h3 className="mt-1 text-xl font-semibold">
+                                    Execution History
+                                </h3>
+                            </div>
+
+                            {auditLoading ? (
+                                <p className="text-sm text-gray-500">
+                                    Loading audit history...
+                                </p>
+                            ) : (
+                                <div className="space-y-4">
+                                    {auditHistory.map((audit) => (
+                                        <div
+                                            key={audit.id}
+                                            className="rounded-lg border border-gray-800 p-4"
+                                        >
+                                            <div className="grid gap-4 md:grid-cols-4">
+                                                <div>
+                                                    <p className="text-sm text-gray-500">
+                                                        Action
+                                                    </p>
+
+                                                    <p className="mt-1 font-medium">
+                                                        {audit.action}
+                                                    </p>
+                                                </div>
+
+                                                <div>
+                                                    <p className="text-sm text-gray-500">
+                                                        Status
+                                                    </p>
+
+                                                    <p className="mt-1 font-medium">
+                                                        {audit.status}
+                                                    </p>
+                                                </div>
+
+                                                <div>
+                                                    <p className="text-sm text-gray-500">
+                                                        Amount Recovered
+                                                    </p>
+
+                                                    <p className="mt-1 font-medium">
+                                                        ₹
+                                                        {Number(
+                                                            audit.amount_recovered
+                                                        ).toLocaleString("en-IN")}
+                                                    </p>
+                                                </div>
+
+                                                <div>
+                                                    <p className="text-sm text-gray-500">
+                                                        Executed At
+                                                    </p>
+
+                                                    <p className="mt-1 text-sm">
+                                                        {new Date(
+                                                            audit.created_at
+                                                        ).toLocaleString("en-IN")}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-4 rounded-lg border border-gray-800 p-4">
+                                                <p className="text-sm text-gray-500">
+                                                    Reason
+                                                </p>
+
+                                                <p className="mt-1 text-sm text-gray-300">
+                                                    {audit.reason}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     )}
                 </>
