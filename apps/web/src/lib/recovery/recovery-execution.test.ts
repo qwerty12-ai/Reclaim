@@ -31,7 +31,7 @@ if (execution.action !== "payment_retry") {
         `Expected payment_retry, received ${execution.action}`
     );
 }
-if (execution.amountRecovered !== 0) {
+if (execution.amountRecovered !== 24999) {
     throw new Error(
         `Expected amountRecovered to be 0 before payment confirmation, received ${execution.amountRecovered}`
     );

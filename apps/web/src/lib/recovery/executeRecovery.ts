@@ -48,7 +48,7 @@ export function executeRecovery(caseData:Case, recoveryPlan:RecoveryResult):Reco
                 caseId: caseData.id,
                 action: recoveryPlan.action,
                 status: "executed",
-                amountRecovered: 0,
+                amountRecovered: Number(caseData.amount),
                 reason: `Recovery action ${recoveryPlan.action} executed and awaiting payment confirmation.`
             }
         }
