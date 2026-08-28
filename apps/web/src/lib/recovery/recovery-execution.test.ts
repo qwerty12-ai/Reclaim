@@ -33,7 +33,7 @@ if (execution.action !== "payment_retry") {
 }
 if (execution.amountRecovered !== 24999) {
     throw new Error(
-        `Expected amountRecovered to be 0 before payment confirmation, received ${execution.amountRecovered}`
+        `Expected amountRecovered to be 24999, received ${execution.amountRecovered}`
     );
 }
 console.log("Recovery execution test passed:", execution);
@@ -54,7 +54,7 @@ if (stoppedExecution.status !== "stopped") {
 }
 if (stoppedExecution.amountRecovered !== 0) {
     throw new Error(
-        `Expected stopped recovery to recover ₹0, received ${stoppedExecution.amountRecovered}`
+        `Expected stopped recovery to recover 0, received ${stoppedExecution.amountRecovered}`
     );
 }
 console.log(

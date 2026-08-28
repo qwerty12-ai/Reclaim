@@ -2,6 +2,8 @@ import { Case } from "@/types";
 import { RecoveryResult } from "@/services/recovery-engine";
 import { createRecoveryAudit, RecoveryAudit } from "./auditRecovery";
 
+const ALLOWED_RECOVERY_ACTIONS = ["payment_retry","checkout_recovery","subscription_recovery"]
+
 export type RecoveryExecutionResult = {
     caseId: string;
     action: string;
@@ -13,8 +15,10 @@ export type RecoveryExecutionResult = {
 
 export function executeRecovery(caseData:Case, recoveryPlan:RecoveryResult):RecoveryExecutionResult {
     let execution: Omit<RecoveryExecutionResult, "audit">;
+    const caseEligible = caseData.status === "at_risk";
+    const planReady = recoveryPlan.status === "ready";
 
-    if(caseData.status !== "at_risk") {
+    if(!caseEligible) {
         execution = {
             caseId: caseData.id,
             action: recoveryPlan.action,
@@ -23,7 +27,7 @@ export function executeRecovery(caseData:Case, recoveryPlan:RecoveryResult):Reco
             reason: "Case is no longer eligible for recovery."
         };
     }
-    else if(recoveryPlan.status !== "ready") {
+    else if(!planReady) {
         execution = {
             caseId: caseData.id,
             action: recoveryPlan.action,
@@ -33,9 +37,7 @@ export function executeRecovery(caseData:Case, recoveryPlan:RecoveryResult):Reco
         }
     } else {
         // Bounded recovery actions
-        const allowedActions = ["payment_retry", "checkout_recovery", "subscription_recovery"]
-    
-        if(!allowedActions.includes(recoveryPlan.action)) {
+        if(!ALLOWED_RECOVERY_ACTIONS.includes(recoveryPlan.action)) {
             execution = {
                 caseId: caseData.id,
                 action: recoveryPlan.action,
@@ -49,7 +51,7 @@ export function executeRecovery(caseData:Case, recoveryPlan:RecoveryResult):Reco
                 action: recoveryPlan.action,
                 status: "executed",
                 amountRecovered: Number(caseData.amount),
-                reason: `Recovery action ${recoveryPlan.action} executed sucessfully in execution.`
+                reason: `Recovery action ${recoveryPlan.action} executed successfully in execution.`
             }
         }
     }
