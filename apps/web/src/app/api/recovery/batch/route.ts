@@ -1,0 +1,82 @@
+import db from "@/lib/db";
+import { Case } from "@/types";
+import { createRecoveryPlan } from "@/services/recovery-engine";
+import { calculateRisk } from "@/services/risk-engine";
+import { executeRecovery } from "@/lib/recovery/executeRecovery";
+
+export async function POST() {
+    try {
+        const [rows] = await db.query(`
+            SELECT
+                id,
+                customer_name,
+                customer_email,
+                amount,
+                currency,
+                issue_type,
+                status,
+                risk_score,
+                created_at,
+                updated_at
+            FROM cases
+            ORDER BY created_at DESC
+        `);
+        const cases = rows as Case[];
+        let revenueAtRisk = 0;
+        let revenueRecovered = 0;
+        let casesRecovered = 0;
+        let casesStopped = 0;
+        const executions = [];
+        for(const recoveryCase of cases) {
+            const calculatedRisk = calculateRisk(recoveryCase);
+            const caseWithCalculatedRisk: Case = {
+                ...recoveryCase,
+                risk_score: calculatedRisk
+            }
+            const recoveryPlan = createRecoveryPlan(caseWithCalculatedRisk);
+            const execution = executeRecovery(caseWithCalculatedRisk, recoveryPlan);
+            revenueAtRisk += Number(recoveryCase.amount);
+            revenueRecovered += execution.amountRecovered;
+            if (execution.status === "executed") casesRecovered += 1;
+            if (execution.status === "stopped") casesStopped += 1;
+            const audit = execution.audit;
+            await db.query(`
+                INSERT INTO 
+                    recovery_executions
+                    (
+                        id,
+                        case_id,
+                        action,
+                        status,
+                        amount_recovered,
+                        reason
+                    )
+                VALUES (UUID(), ?, ?, ?, ?, ?)
+            `, [
+                audit.caseId,
+                audit.action,
+                audit.status,
+                audit.amountRecovered,
+                audit.reason
+            ])
+            executions.push(execution);
+        }
+        const recoveryRate = revenueAtRisk > 0 ? (revenueRecovered / revenueAtRisk) * 100 : 0;
+        return Response.json({
+            casesProcessed: cases.length,
+            casesRecovered,
+            casesStopped,
+            revenueAtRisk,
+            revenueRecovered,
+            recoveryRate,
+            executions
+        })
+    } catch (error) {
+        console.error("Batch recovery failed: ", error);
+        return Response.json(
+            {
+                message: "Batch recovery failed."
+            }, {status: 500}
+        )
+    }
+}
