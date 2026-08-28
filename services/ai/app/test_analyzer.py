@@ -32,6 +32,12 @@ if not isinstance(result["diagnosis"], str):
 if not isinstance(result["reason"], str):
     raise Exception("Reason should be a string.")
 
+if not isinstance(result["customer_message"], str):
+    raise Exception("Customer message should be a string.")
+
+if not result["customer_message"].strip():
+    raise Exception("Customer message should not be empty.")
+
 if not 0.0 <= result["confidence"] <= 1.0:
     raise Exception(f"Confidence must be between 0 and 1, got {result['confidence']}")
 
