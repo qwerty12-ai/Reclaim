@@ -3,7 +3,6 @@ import { determineIntervention } from "@/services/intervention-engine";
 import { createRecoveryPlan } from "@/services/recovery-engine";
 import { analyzeCase } from "@/lib/ai/client";
 import { Case } from "@/types";
-import { calculateRisk } from "@/services/risk-engine";
 
 export async function POST(request: Request) {
     try {
@@ -39,11 +38,7 @@ export async function POST(request: Request) {
 
         const recoveryCase = cases[0]
 
-        const calculatedRisk = calculateRisk(recoveryCase);
-        const caseWithCalculatedRisk: Case = {
-            ...recoveryCase,
-            risk_score: calculatedRisk
-        }
+        const caseWithCalculatedRisk: Case = recoveryCase;
         const intervention = determineIntervention(caseWithCalculatedRisk);
         const recoveryPlan = createRecoveryPlan(caseWithCalculatedRisk);
         const aiAnalysis = await analyzeCase(caseWithCalculatedRisk);
@@ -51,7 +46,7 @@ export async function POST(request: Request) {
         return Response.json({
             status: recoveryPlan.status,
             case: caseWithCalculatedRisk,
-            risk: calculatedRisk,
+            risk: recoveryCase.risk_score,
             intervention,
             recover: recoveryPlan,
             ai: aiAnalysis

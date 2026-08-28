@@ -20,9 +20,9 @@ ALLOWED_ACTIONS = {
 }
 
 def analyze_case(case: dict[str, Any]) -> dict[str, Any]:
-    """
-    Analyze a revenue recovery case using a local LLM through Ollama.
-    """
+
+    # Analyze a revenue recovery case using a local LLM through Ollama.
+
     model = os.getenv("OLLAMA_MODEL", "qwen3:4")
 
     prompt = f"""
@@ -30,13 +30,31 @@ You are the AI recovery analyst for a revenue recovery system.
 
 Analyze the following revenue-risk case.
 
-Case:
+IMPORTANT:
+The case data below comes directly from the database and is authoritative.
+
+You MUST:
+- Use the provided case data exactly as given.
+- Never change, recalculate, estimate, or invent the risk score.
+- If you mention the risk score in your diagnosis or reason, use exactly {case.get("risk_score", 0)}.
+- Do not substitute another risk score.
+- Do not invent financial results.
+- Do not claim that money has been recovered.
+
+Case data — these values are authoritative and MUST NOT be changed:
+
 - Case ID: {case.get("id")}
 - Customer: {case.get("customer_name")}
 - Amount: {case.get("amount")} {case.get("currency")}
 - Issue type: {case.get("issue_type")}
 - Status: {case.get("status")}
 - Risk score: {case.get("risk_score", 0)}
+
+CRITICAL FACTUAL RULE:
+The risk score above comes directly from the database.
+You MUST use exactly {case.get("risk_score", 0)} as the risk score.
+NEVER invent, estimate, change, or substitute another risk score.
+If you mention the risk score anywhere in your response, it MUST be {case.get("risk_score", 0)}.
 
 Determine:
 1. What is happening with this case?
@@ -52,8 +70,6 @@ You may ONLY recommend one of these actions:
 - manual_review
 
 Do not execute any action.
-Do not invent financial results.
-Do not claim that money has been recovered.
 
 Return only the requested structured response.
 """
