@@ -26,8 +26,16 @@ export async function POST() {
         let revenueRecovered = 0;
         let casesRecovered = 0;
         let casesStopped = 0;
+        let casesSkipped = 0;
         const executions = [];
         for(const recoveryCase of cases) {
+            const [existingExecutions] = await db.query(`
+                SELECT id FROM recovery_executions WHERE case_id = ? LIMIT 1
+            `, [recoveryCase.id]);
+            if((existingExecutions as {id: string}[]).length > 0) {
+                casesSkipped += 1;
+                continue;
+            }
             const calculatedRisk = calculateRisk(recoveryCase);
             const caseWithCalculatedRisk: Case = {
                 ...recoveryCase,
@@ -66,6 +74,7 @@ export async function POST() {
             casesProcessed: cases.length,
             casesRecovered,
             casesStopped,
+            casesSkipped,
             revenueAtRisk,
             revenueRecovered,
             recoveryRate,
