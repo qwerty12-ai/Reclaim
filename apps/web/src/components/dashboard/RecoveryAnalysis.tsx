@@ -185,6 +185,16 @@ export default function RecoveryAnalysis({ caseId }: RecoveryAnalysisProps) {
                                     {(Number(result.ai.confidence) * 100).toFixed(0)}%
                                 </p>
                             </div>
+
+                            <div className="mt-4">
+                                <p className="text-sm text-gray-500">
+                                    Customer Recovery Message
+                                </p>
+
+                                <p className="mt-1 font-medium">
+                                    {result.ai.customer_message}
+                                </p>
+                            </div>
                         </div>
 
                     </div>

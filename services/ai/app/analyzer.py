@@ -11,6 +11,7 @@ class RecoveryAnalysis(BaseModel):
     recommendation: str
     reason: str
     confidence: float
+    customer_message: str
 
 ALLOWED_ACTIONS = {
     "payment_retry",
@@ -28,21 +29,9 @@ def analyze_case(case: dict[str, Any]) -> dict[str, Any]:
     prompt = f"""
 You are the AI recovery analyst for a revenue recovery system.
 
-Analyze the following revenue-risk case.
+Analyze this specific revenue-risk case using ONLY the case data provided below.
 
-IMPORTANT:
-The case data below comes directly from the database and is authoritative.
-
-You MUST:
-- Use the provided case data exactly as given.
-- Never change, recalculate, estimate, or invent the risk score.
-- If you mention the risk score in your diagnosis or reason, use exactly {case.get("risk_score", 0)}.
-- Do not substitute another risk score.
-- Do not invent financial results.
-- Do not claim that money has been recovered.
-
-Case data — these values are authoritative and MUST NOT be changed:
-
+Case:
 - Case ID: {case.get("id")}
 - Customer: {case.get("customer_name")}
 - Amount: {case.get("amount")} {case.get("currency")}
@@ -50,28 +39,56 @@ Case data — these values are authoritative and MUST NOT be changed:
 - Status: {case.get("status")}
 - Risk score: {case.get("risk_score", 0)}
 
-CRITICAL FACTUAL RULE:
-The risk score above comes directly from the database.
-You MUST use exactly {case.get("risk_score", 0)} as the risk score.
-NEVER invent, estimate, change, or substitute another risk score.
-If you mention the risk score anywhere in your response, it MUST be {case.get("risk_score", 0)}.
+The risk_score provided above is authoritative.
 
-Determine:
-1. What is happening with this case?
-2. Which recovery action is most appropriate?
-3. Why is that action appropriate?
-4. How confident are you?
+IMPORTANT:
+- Do NOT calculate, estimate, modify, or infer a different risk score.
+- Use the provided risk score exactly as given.
+- Do NOT repeat the questions or instructions below as answers.
+- Every response field must contain an actual answer based on this specific case.
+- Do NOT invent facts that are not present in the case data.
 
-You may ONLY recommend one of these actions:
+Determine the following:
 
+1. diagnosis:
+   Give a concise, factual explanation of what is happening with this specific case.
+
+2. recommendation:
+   Select exactly ONE recovery action from the allowed actions below.
+
+3. reason:
+   Explain why that recovery action is appropriate for this specific case.
+
+4. confidence:
+   Return a number between 0.0 and 1.0 representing your confidence in the recommendation.
+
+5. customer_message:
+   Write the actual short, professional message that could be shown directly to the customer.
+   Do not describe how to write the message.
+   Do not output instructions for creating the message.
+   Output the message itself.
+
+Allowed recovery actions:
 - payment_retry
 - checkout_recovery
 - subscription_recovery
 - manual_review
 
-Do not execute any action.
+Customer message requirements:
+- Address the customer directly.
+- Be concise and professional.
+- Explain the relevant issue appropriately.
+- Do not mention the internal risk score.
+- Do not mention internal system details.
+- Do not mention AI.
+- Do not claim that money has already been recovered.
+- Do not guarantee that the payment will succeed.
 
-Return only the requested structured response.
+Do not execute any recovery action.
+Do not invent financial results.
+Do not claim that any money has been recovered.
+
+Return only the structured response.
 """
 
     response = client.chat(model=model, messages = [{"role": "user","content": prompt}],
@@ -96,5 +113,6 @@ Return only the requested structured response.
         "diagnosis": analysis.diagnosis,
         "recommendation": recommendation,
         "reason": analysis.reason,
-        "confidence": confidence
+        "confidence": confidence,
+        "customer_message": analysis.customer_message
     }

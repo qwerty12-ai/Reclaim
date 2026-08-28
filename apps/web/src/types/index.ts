@@ -18,4 +18,5 @@ export type AIAnalysis = {
   recommendation: string;
   reason: string;
   confidence: number;
+  customer_message: string
 };
