@@ -1,7 +1,7 @@
 export type RecoveryAudit = {
     caseId: string;
     action: string;
-    status: "executed" | "stopped";
+    status: "executed" | "stopped" | "escalated";
     amountRecovered: number;
     reason: string;
     timestamp: string;
@@ -10,7 +10,7 @@ export type RecoveryAudit = {
 type RecoveryExecution = {
     caseId: string;
     action: string;
-    status: "executed" | "stopped";
+    status: "executed" | "stopped" | "escalated";
     amountRecovered: number;
     reason: string;
 }

@@ -7,7 +7,7 @@ const ALLOWED_RECOVERY_ACTIONS = ["payment_retry","checkout_recovery","subscript
 export type RecoveryExecutionResult = {
     caseId: string;
     action: string;
-    status: "executed" | "stopped";
+    status: "executed" | "stopped" | "escalated";
     amountRecovered: number;
     reason: string;
     audit: RecoveryAudit;
@@ -37,7 +37,15 @@ export function executeRecovery(caseData:Case, recoveryPlan:RecoveryResult):Reco
         }
     } else {
         // Bounded recovery actions
-        if(!ALLOWED_RECOVERY_ACTIONS.includes(recoveryPlan.action)) {
+        if (recoveryPlan.action === "manual_review") {
+            execution = {
+                caseId: caseData.id,
+                action: recoveryPlan.action,
+                status: "escalated",
+                amountRecovered: 0,
+                reason: "Case requires manual review and has been escalated."
+            }
+        } else if(!ALLOWED_RECOVERY_ACTIONS.includes(recoveryPlan.action)) {
             execution = {
                 caseId: caseData.id,
                 action: recoveryPlan.action,
@@ -51,7 +59,7 @@ export function executeRecovery(caseData:Case, recoveryPlan:RecoveryResult):Reco
                 action: recoveryPlan.action,
                 status: "executed",
                 amountRecovered: Number(caseData.amount),
-                reason: `Recovery action ${recoveryPlan.action} executed successfully in execution.`
+                reason: `Recovery action ${recoveryPlan.action} executed successfully in simulation.`
             }
         }
     }

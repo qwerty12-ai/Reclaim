@@ -36,6 +36,9 @@ if (execution.amountRecovered !== 24999) {
         `Expected amountRecovered to be 24999, received ${execution.amountRecovered}`
     );
 }
+if (execution.reason !== "Recovery action payment_retry executed successfully in simulation.") {
+    throw new Error("Unexpected execution reason.")
+}
 console.log("Recovery execution test passed:", execution);
 
 
@@ -63,24 +66,24 @@ console.log(
 );
 
 
-const unsupportedPlan: RecoveryResult = {
+const escalatedPlan: RecoveryResult = {
     caseId: "test-001",
     action: "manual_review",
     status: "ready",
     reason: "Manual review required."
 };
-const unsupportedExecution = executeRecovery(
+const escalatedExecution = executeRecovery(
     baseCase,
-    unsupportedPlan
+    escalatedPlan
 );
-if (unsupportedExecution.status !== "stopped") {
+if (escalatedExecution.status !== "escalated") {
     throw new Error(
-        `Expected stopped for unsupported action, received ${unsupportedExecution.status}`
+        `Expected escalated for manual review, received ${escalatedExecution.status}`
     );
 }
 console.log(
     "Unsupported recovery action test passed:",
-    unsupportedExecution
+    escalatedExecution
 );
 
 

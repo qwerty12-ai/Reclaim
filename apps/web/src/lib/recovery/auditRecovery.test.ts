@@ -5,7 +5,7 @@ const executedRecovery = {
     action: "payment_retry",
     status: "executed" as const,
     amountRecovered: 0,
-    reason: "Recovery action executed and awaiting payment confirmation."
+    reason: "Recovery action payment_retry executed successfully in simulation."
 };
 
 const executedAudit = createRecoveryAudit(executedRecovery);
@@ -36,7 +36,7 @@ if (executedAudit.amountRecovered !== 0) {
 
 if (
     executedAudit.reason !==
-    "Recovery action executed and awaiting payment confirmation."
+    "Recovery action payment_retry executed successfully in simulation."
 ) {
     throw new Error("Unexpected audit reason.");
 }
@@ -93,4 +93,31 @@ if (!stoppedAudit.timestamp) {
 console.log(
     "Stopped recovery audit test passed: ",
     stoppedAudit
+);
+
+const escalatedRecovery = {
+    caseId: "case-002",
+    action: "manual_review",
+    status: "escalated" as const,
+    amountRecovered: 0,
+    reason: "Case requires manual review and has been escalated."
+};
+
+const escalatedAudit = createRecoveryAudit(escalatedRecovery);
+
+if (escalatedAudit.status !== "escalated") {
+    throw new Error(
+        `Expected escalated, received ${escalatedAudit.status}`
+    );
+}
+
+if (escalatedAudit.amountRecovered !== 0) {
+    throw new Error(
+        `Expected escalated recovery to recover 0, received ${escalatedAudit.amountRecovered}`
+    );
+}
+
+console.log(
+    "Escalated recovery audit test passed:",
+    escalatedAudit
 );
