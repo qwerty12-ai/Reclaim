@@ -26,6 +26,7 @@ export async function POST() {
         let revenueRecovered = 0;
         let casesRecovered = 0;
         let casesStopped = 0;
+        let casesEscalated = 0;
         let casesSkipped = 0;
         const executions = [];
         for(const recoveryCase of cases) {
@@ -47,6 +48,7 @@ export async function POST() {
             revenueRecovered += execution.amountRecovered;
             if (execution.status === "executed") casesRecovered += 1;
             if (execution.status === "stopped") casesStopped += 1;
+            if (execution.status === "escalated") casesEscalated += 1;
             const audit = execution.audit;
             await db.query(`
                 INSERT INTO 
@@ -71,9 +73,10 @@ export async function POST() {
         }
         const recoveryRate = revenueAtRisk > 0 ? (revenueRecovered / revenueAtRisk) * 100 : 0;
         return Response.json({
-            casesProcessed: cases.length,
+            casesProcessed: cases.length - casesSkipped,
             casesRecovered,
             casesStopped,
+            casesEscalated,
             casesSkipped,
             revenueAtRisk,
             revenueRecovered,
