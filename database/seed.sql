@@ -2,7 +2,6 @@ USE reclaim;
 
 INSERT INTO cases (
     id,
-    case_id,
     customer_name,
     customer_email,
     amount,
@@ -12,7 +11,6 @@ INSERT INTO cases (
     risk_score
 ) VALUES 
 (
-    UUID(),
     'case-001',
     'Aarav Sharma',
     'aarva@example.com',
@@ -23,7 +21,6 @@ INSERT INTO cases (
     82
 ),
 (
-    UUID(),
     'case-002',
     'Priya Mehta',
     'priya@example.com',
@@ -34,7 +31,6 @@ INSERT INTO cases (
     67
 ),
 (
-    UUID(),
     'case-003',
     'Rahul Verma',
     'rahul@example.com',
