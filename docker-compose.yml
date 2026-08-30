@@ -1,0 +1,56 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: reclaim-mysql
+    environment: 
+      MYSQL_ROOT_PASSWORD: reclaim_root
+      MYSQL_DATABASE: reclaim
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    networks:
+      - reclaim-network
+
+  ai:
+    build:
+      context: ./services/ai
+      dockerfile: Dockerfile
+    container_name: reclaim-ai
+    environment:
+      OLLAMA_HOST: http://host.docker.internal:11434
+      OLLAMA_MODEL: qwen3:4b
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - reclaim-network
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: reclaim-web
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: reclaim_root
+      DB_NAME: reclaim
+      AI_SERVICE_URL: http://ai:8000
+      INTERNAL_API_URL: http://web:3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+      - ai
+    networks:
+      - reclaim-network
+
+volumes:
+  mysql_data:
+
+networks:
+  reclaim-network:
+    driver: bridge
