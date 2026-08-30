@@ -24,7 +24,7 @@ def analyze_case(case: dict[str, Any]) -> dict[str, Any]:
 
     # Analyze a revenue recovery case using a local LLM through Ollama.
 
-    model = os.getenv("OLLAMA_MODEL", "qwen3:4")
+    model = os.getenv("OLLAMA_MODEL", "qwen3:4b")
 
     prompt = f"""
 You are the AI recovery analyst for a revenue recovery system.
