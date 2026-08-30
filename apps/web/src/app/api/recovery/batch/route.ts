@@ -72,8 +72,9 @@ export async function POST() {
             executions.push(execution);
         }
         const recoveryRate = revenueAtRisk > 0 ? (revenueRecovered / revenueAtRisk) * 100 : 0;
+        const casesProcessed = cases.length - casesSkipped
         return Response.json({
-            casesProcessed: cases.length - casesSkipped,
+            casesProcessed,
             casesRecovered,
             casesStopped,
             casesEscalated,
@@ -81,7 +82,9 @@ export async function POST() {
             revenueAtRisk,
             revenueRecovered,
             recoveryRate,
-            executions
+            executions,
+            hasNewExecutions: executions.length > 0,
+            message: executions.length > 0 ? "Batch recovery completed." : "No new recovery actions were executed. All cases were already processed."
         })
     } catch (error) {
         console.error("Batch recovery failed: ", error);
