@@ -6,7 +6,7 @@ type CashPageProps = {
 
 export default async function CasePage({params}: CashPageProps) {
     const {id} = await params;
-    const response = await fetch(`http://localhost:3000/api/cases/${id}`, {cache: "no-store"})
+    const response = await fetch(`${process.env.INTERNAL_API_URL || "http://localhost:3000"}/api/cases/${id}`, {cache: "no-store"})
     if(!response.ok) {
         return (
             <main className="min-h-screen bg-black p-10 text-red-400">

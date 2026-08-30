@@ -20,4 +20,4 @@ def health():
 
 @app.post("/analyze")
 def analyze(case: dict):
-    return analyze_case(case)
+    return analyze_case(case, case.get("intervention_action"))
