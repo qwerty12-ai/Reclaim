@@ -7,10 +7,10 @@ test_case = {
     "currency": "INR",
     "issue_type": "payment_failure",
     "status": "at_risk",
-    "risk_score": 82
+    "risk_score": 82,
 }
 
-result = analyze_case(test_case)
+result = analyze_case(test_case, "payment_retry")
 
 if result["case_id"] != "test-001":
     raise Exception(f"Expected case_id test-001, recieved {result['case_id']}")
@@ -26,6 +26,8 @@ if result["recommendation"] not in {
 }:
     raise Exception(f"Unexpected recovery recommendation: ",{result['recommendation']})
 
+if result["recommendation"] != "payment_retry":
+    raise Exception(f"Expected payment_ready, received {result['recommendation']}")
 if not isinstance(result["diagnosis"], str):
     raise Exception("Diagnosis should be a string.")
 
@@ -40,5 +42,6 @@ if not result["customer_message"].strip():
 
 if not 0.0 <= result["confidence"] <= 1.0:
     raise Exception(f"Confidence must be between 0 and 1, got {result['confidence']}")
+
 
 print("Analyzer test passed: ", result)

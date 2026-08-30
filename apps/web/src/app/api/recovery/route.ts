@@ -41,7 +41,7 @@ export async function POST(request: Request) {
         const caseWithCalculatedRisk: Case = recoveryCase;
         const intervention = determineIntervention(caseWithCalculatedRisk);
         const recoveryPlan = createRecoveryPlan(caseWithCalculatedRisk);
-        const aiAnalysis = await analyzeCase(caseWithCalculatedRisk);
+        const aiAnalysis = await analyzeCase(caseWithCalculatedRisk, intervention.action);
 
         return Response.json({
             status: recoveryPlan.status,

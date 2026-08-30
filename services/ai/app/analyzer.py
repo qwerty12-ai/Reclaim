@@ -20,7 +20,7 @@ ALLOWED_ACTIONS = {
     "manual_review"
 }
 
-def analyze_case(case: dict[str, Any]) -> dict[str, Any]:
+def analyze_case(case: dict[str, Any], intervention_action: str) -> dict[str, Any]:
 
     # Analyze a revenue recovery case using a local LLM through Ollama.
 
@@ -38,6 +38,7 @@ Case:
 - Issue type: {case.get("issue_type")}
 - Status: {case.get("status")}
 - Risk score: {case.get("risk_score", 0)}
+- Authoritative intervention: {intervention_action}
 
 The risk_score provided above is authoritative.
 
@@ -47,6 +48,8 @@ IMPORTANT:
 - Do NOT repeat the questions or instructions below as answers.
 - Every response field must contain an actual answer based on this specific case.
 - Do NOT invent facts that are not present in the case data.
+- The authoritative intervention provided by the application must be returned exactly as the recommendation.
+- Do NOT replace the authoritative intervention with another recovery action.
 
 Determine the following:
 
@@ -54,7 +57,9 @@ Determine the following:
    Give a concise, factual explanation of what is happening with this specific case.
 
 2. recommendation:
-   Select exactly ONE recovery action from the allowed actions below.
+   Return the authoritative intervention provided by the application.
+   DO NOT select a different recovery action.
+   The authoritative intervention is: {intervention_action}
 
 3. reason:
    Explain why that recovery action is appropriate for this specific case.
