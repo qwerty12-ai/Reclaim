@@ -39,4 +39,14 @@ INSERT INTO cases (
     'subscription_failure',
     'recovering',
     54
+),
+(
+    'case-004',
+    'Neha Kapoor',
+    'neha@example.com',
+    9999.00,
+    'INR',
+    'unknown_failure',
+    'at_risk',
+    0
 );
