@@ -1,7 +1,6 @@
 import db from "@/lib/db";
 import { Case } from "@/types";
 import { createRecoveryPlan } from "@/services/recovery-engine";
-import { calculateRisk } from "@/services/risk-engine";
 import { executeRecovery } from "@/lib/recovery/executeRecovery";
 
 export async function POST() {
@@ -37,13 +36,8 @@ export async function POST() {
                 casesSkipped += 1;
                 continue;
             }
-            const calculatedRisk = calculateRisk(recoveryCase);
-            const caseWithCalculatedRisk: Case = {
-                ...recoveryCase,
-                risk_score: calculatedRisk
-            }
-            const recoveryPlan = createRecoveryPlan(caseWithCalculatedRisk);
-            const execution = executeRecovery(caseWithCalculatedRisk, recoveryPlan);
+            const recoveryPlan = createRecoveryPlan(recoveryCase);
+            const execution = executeRecovery(recoveryCase, recoveryPlan);
             revenueAtRisk += Number(recoveryCase.amount);
             revenueRecovered += execution.amountRecovered;
             if (execution.status === "executed") casesRecovered += 1;

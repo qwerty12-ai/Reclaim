@@ -1,8 +1,18 @@
 import db from "@/lib/db";
 import { createRecoveryPlan } from "@/services/recovery-engine";
 import { Case } from "@/types";
-import { calculateRisk } from "@/services/risk-engine";
 import { executeRecovery } from "@/lib/recovery/executeRecovery";
+import { time, timeStamp } from "console";
+
+type RecoveryExecutionRecord = {
+    id: string;
+    case_id: string;
+    action: string;
+    status: string;
+    amount_recovered: number;
+    reason: string;
+    created_at: string;
+};
 
 export async function POST(request: Request) {
     try {
@@ -38,13 +48,45 @@ export async function POST(request: Request) {
 
         const recoveryCase = cases[0]
 
-        const calculatedRisk = calculateRisk(recoveryCase);
-        const caseWithCalculatedRisk: Case = {
-            ...recoveryCase,
-            risk_score: calculatedRisk
+        const [existingExecutions] = await db.query(`
+            SELECT 
+                id,
+                case_id,
+                action,
+                status,
+                amount_recovered,
+                reason,
+                created_at
+            FROM recovery_executions WHERE case_id=? ORDER BY created_at DESC LIMIT 1
+        `, [caseId])
+
+        const executions = existingExecutions as RecoveryExecutionRecord[];
+
+        if (executions.length > 0) {
+            const existingExecution = executions[0];
+            return Response.json({
+                message: "Recovery has already been executed for this case.",
+                execution: {
+                    caseId: existingExecution.case_id,
+                    action: existingExecution.action,
+                    status: existingExecution.status,
+                    amountRecovered: Number(existingExecution.amount_recovered),
+                    reason: existingExecution.reason,
+                    audit: {
+                        caseId: existingExecution.case_id,
+                        action: existingExecution.action,
+                        status: existingExecution.status,
+                        amountRecovered: Number(existingExecution.amount_recovered),
+                        reason: existingExecution.reason,
+                        timeStamp: existingExecution.created_at
+                    }
+                },
+                alreadyExecuted: true
+            })
         }
-        const recoveryPlan = createRecoveryPlan(caseWithCalculatedRisk);
-        const execution = executeRecovery(caseWithCalculatedRisk, recoveryPlan)
+
+        const recoveryPlan = createRecoveryPlan(recoveryCase);
+        const execution = executeRecovery(recoveryCase, recoveryPlan)
         const audit = execution.audit;
         await db.query(`
             INSERT INTO recovery_executions 
@@ -63,8 +105,8 @@ export async function POST(request: Request) {
             audit.reason
         ])
         return Response.json({
-            case: caseWithCalculatedRisk,
-            risk: calculatedRisk,
+            case: recoveryCase,
+            risk: recoveryCase.risk_score,
             plan: recoveryPlan,
             execution
         });
