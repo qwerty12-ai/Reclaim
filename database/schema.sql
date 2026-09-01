@@ -24,4 +24,4 @@ CREATE TABLE recovery_executions(
     reason TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
     CONSTRAINT fk_recovery_case FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE 
-)
+);
