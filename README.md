@@ -16,6 +16,14 @@ MySQL provides persistent case and recovery execution data.
 
 ---
 
+## 🎬 Project Pitch
+
+Watch the Reclaim project pitch to see the complete revenue recovery workflow in action, including AI-assisted analysis, bounded execution, stopping rules, escalation, batch recovery, auditability, and idempotency.
+
+**[▶️ Watch the Reclaim Pitch](https://drive.google.com/file/d/159puneOEg8M65Fe32Vmyzru-Qh1BiI3H/view?usp=sharing)**
+
+--- 
+
 ## Overview
 
 Revenue can be placed at risk by events such as payment failures, checkout abandonment, and subscription failures.
